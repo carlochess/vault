@@ -45,6 +45,7 @@ import (
 	physConsul "github.com/hashicorp/vault/physical/consul"
 	physCouchDB "github.com/hashicorp/vault/physical/couchdb"
 	physDynamoDB "github.com/hashicorp/vault/physical/dynamodb"
+	parameterstore "github.com/hashicorp/vault/physical/parameterstore"
 	physEtcd "github.com/hashicorp/vault/physical/etcd"
 	physFile "github.com/hashicorp/vault/physical/file"
 	physFoundationDB "github.com/hashicorp/vault/physical/foundationdb"
@@ -108,6 +109,7 @@ var (
 		"couchdb_transactional":  physCouchDB.NewTransactionalCouchDBBackend,
 		"couchdb":                physCouchDB.NewCouchDBBackend,
 		"dynamodb":               physDynamoDB.NewDynamoDBBackend,
+		"parameterstore":         parameterstore.NewParamStoreBackend,
 		"etcd":                   physEtcd.NewEtcdBackend,
 		"file_transactional":     physFile.NewTransactionalFileBackend,
 		"file":                   physFile.NewFileBackend,
