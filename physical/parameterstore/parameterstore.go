@@ -37,17 +37,37 @@ type ParamStoreBackend struct {
 }
 
 func NewParamStoreBackend(conf map[string]string, logger log.Logger) (physical.Backend, error) {
-	region := "us-east-1"
-	credsConfig := &awsutil.CredentialsConfig{
-		AccessKey:    conf["access_key"],
-		SecretKey:    conf["secret_key"],
-		SessionToken: conf["session_token"],
+	accessKey, ok := conf["access_key"]
+        if !ok {
+           accessKey = ""
+        }
+
+	secretKey, ok := conf["secret_key"]
+        if !ok {
+           secretKey = ""
+        }
+
+        sessionToken, ok := conf["session_token"]
+        if !ok {
+           sessionToken = ""
+        }
+
+        credsConfig := &awsutil.CredentialsConfig{
+	   AccessKey:    accessKey,
+	   SecretKey:    secretKey,
+           SessionToken: sessionToken,
 	}
+
 	creds, err := credsConfig.GenerateCredentialChain()
 	if err != nil {
 		return nil, err
 	}
-	logger.Error("Init")
+
+	region := "us-east-1"
+	regionFromUser, ok := conf["region"]
+        if ok {
+		region = regionFromUser
+	}
 
 	pooledTransport := cleanhttp.DefaultPooledTransport()
 	pooledTransport.MaxIdleConnsPerHost = consts.ExpirationRestoreWorkerCount
@@ -64,8 +84,11 @@ func NewParamStoreBackend(conf map[string]string, logger log.Logger) (physical.B
 		return nil, errwrap.Wrapf("Could not establish AWS session: {{err}}", err)
 	}
 
-        path := ParamStorePrefix
-
+	path := ParamStorePrefix
+	pathFromUser, ok := conf["path"]
+        if ok {
+		path = pathFromUser
+	}
 	client := ssm.New(awsSession)
 
 	return &ParamStoreBackend{
